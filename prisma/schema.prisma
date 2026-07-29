@@ -30,6 +30,8 @@ model User {
   
   @@unique([email])
   @@map("user")
+
+  clients       Client[]
 }
 
 model Session {
@@ -78,4 +80,19 @@ model Verification {
 
   @@index([identifier])
   @@map("verification")
+}
+
+model Client {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name      String
+  gstin     String?
+  email     String?
+  phone     String?
+  state     String
+  country   String   @default("India")
+  createdAt DateTime @default(now())
+
+  @@index([userId])
 }
