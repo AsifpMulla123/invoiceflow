@@ -32,6 +32,7 @@ model User {
   @@map("user")
 
   clients       Client[]
+  invoices      Invoice[]
 }
 
 model Session {
@@ -95,4 +96,45 @@ model Client {
   createdAt DateTime @default(now())
 
   @@index([userId])
+  invoices  Invoice[]
+}
+enum InvoiceStatus {
+  DRAFT
+  SENT
+  VIEWED
+  PAID
+  OVERDUE
+  VOIDED
+}
+
+model Invoice {
+  id              String        @id @default(cuid())
+  invoiceNumber   String
+  userId          String
+  user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  clientId        String
+  client          Client        @relation(fields: [clientId], references: [id])
+  status          InvoiceStatus @default(DRAFT)
+  cgst            Decimal       @default(0) @db.Decimal(10, 2)
+  sgst            Decimal       @default(0) @db.Decimal(10, 2)
+  igst            Decimal       @default(0) @db.Decimal(10, 2)
+  discount        Decimal       @default(0) @db.Decimal(10, 2)
+  total           Decimal       @db.Decimal(10, 2)
+  dueDate         DateTime
+  voidedInvoiceId String?
+  lineItems       LineItem[]
+  createdAt       DateTime      @default(now())
+
+  @@index([userId, status])
+  @@unique([userId, invoiceNumber])
+}
+
+model LineItem {
+  id          String  @id @default(cuid())
+  invoiceId   String
+  invoice     Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  description String
+  quantity    Int
+  rate        Decimal @db.Decimal(10, 2)
+  amount      Decimal @db.Decimal(10, 2)
 }
