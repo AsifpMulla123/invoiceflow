@@ -1,3 +1,4 @@
+import { razorpay } from "@/lib/razorpay/client";
 import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 import { auth } from "@/lib/auth/auth";
@@ -33,6 +34,19 @@ export async function POST(
 
   const user = await prisma.user.findUnique({ where: { id: session.user.id } });
 
+  const paymentLink = await razorpay.paymentLink.create({
+    amount: Math.round(Number(invoice.total) * 100),
+    currency: "INR",
+    description: `Payment for invoice ${invoice.invoiceNumber}`,
+    customer: {
+      name: invoice.client.name,
+      email: invoice.client.email ?? undefined,
+    },
+    notify: { sms: false, email: false },
+    reference_id: invoice.id,
+    callback_url: `${process.env.NEXT_PUBLIC_SITE_URL}/pay/${invoice.id}/success`,
+    callback_method: "get",
+  });
   try {
     const lineItemsHtml = invoice.lineItems
       .map(
@@ -66,6 +80,7 @@ export async function POST(
     </table>
     <p style="text-align: right; font-weight: bold;">Total: ₹${Number(invoice.total).toFixed(2)}</p>
     <p><a href="${process.env.NEXT_PUBLIC_SITE_URL}/api/invoices/${invoice.id}/pdf">View invoice PDF</a></p>
+    <p><a href="${paymentLink.short_url}" style="background:#2563eb;color:white;padding:10px 20px;border-radius:6px;text-decoration:none;display:inline-block;">Pay ₹${Number(invoice.total).toFixed(2)}</a></p>
   `,
     });
   } catch (err) {

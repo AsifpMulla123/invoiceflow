@@ -127,6 +127,7 @@ model Invoice {
 
   @@index([userId, status])
   @@unique([userId, invoiceNumber])
+  paymentEvents PaymentEvent[]
 }
 
 model LineItem {
@@ -137,4 +138,18 @@ model LineItem {
   quantity    Int
   rate        Decimal @db.Decimal(10, 2)
   amount      Decimal @db.Decimal(10, 2)
+}
+enum PaymentSource {
+  RAZORPAY
+  MANUAL
+}
+
+model PaymentEvent {
+  id         String        @id @default(cuid())
+  invoiceId  String
+  invoice    Invoice       @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  source     PaymentSource
+  razorpayId String?       @unique
+  amount     Decimal       @db.Decimal(10, 2)
+  createdAt  DateTime      @default(now())
 }
