@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { auth } from "@/lib/auth/auth";
 import { prisma } from "@/lib/db/prisma";
 import { SendInvoiceButton } from "@/components/invoices/send-invoice-button";
+import { InvoiceActions } from "@/components/invoices/invoice-actions";
 
 export default async function InvoiceDetailPage({
   params,
@@ -14,7 +15,11 @@ export default async function InvoiceDetailPage({
 
   const invoice = await prisma.invoice.findFirst({
     where: { id, userId: session!.user.id },
-    include: { client: true, lineItems: true },
+    include: {
+      client: true,
+      lineItems: true,
+      paymentEvents: { orderBy: { createdAt: "desc" } },
+    },
   });
 
   if (!invoice) {
@@ -42,6 +47,7 @@ export default async function InvoiceDetailPage({
         {invoice.status === "DRAFT" && (
           <SendInvoiceButton invoiceId={invoice.id} />
         )}
+        <InvoiceActions invoiceId={invoice.id} status={invoice.status} />
       </div>
 
       <div className="border rounded-xl p-4 text-sm space-y-2">
@@ -59,6 +65,39 @@ export default async function InvoiceDetailPage({
           <span className="tabular-nums">
             ₹{Number(invoice.total).toFixed(2)}
           </span>
+        </div>
+        <div className="mt-6">
+          <p className="text-sm font-medium text-muted-foreground mb-2">
+            Payment history
+          </p>
+          {invoice.paymentEvents.length === 0 ? (
+            <div className="border rounded-xl p-4 text-sm text-muted-foreground">
+              No payment received yet
+            </div>
+          ) : (
+            <div className="border rounded-xl divide-y">
+              {invoice.paymentEvents.map((event) => (
+                <div
+                  key={event.id}
+                  className="flex items-center justify-between px-4 py-3 text-sm"
+                >
+                  <div>
+                    <p className="font-medium">
+                      {event.source === "RAZORPAY"
+                        ? "Paid via Razorpay"
+                        : "Marked paid manually"}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {event.createdAt.toDateString()}
+                    </p>
+                  </div>
+                  <span className="tabular-nums">
+                    ₹{Number(event.amount).toFixed(2)}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>
