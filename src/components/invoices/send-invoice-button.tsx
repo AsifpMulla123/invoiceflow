@@ -8,16 +8,27 @@ export function SendInvoiceButton({ invoiceId }: { invoiceId: string }) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
 
+  const [error, setError] = useState<string | null>(null);
+
   async function handleSend() {
     setLoading(true);
-    await fetch(`/api/invoices/${invoiceId}/send`, { method: "POST" });
-    setLoading(false);
-    router.refresh();
+    setError(null);
+    try {
+      await fetch(`/api/invoices/${invoiceId}/send`, { method: "POST" });
+      router.refresh();
+    } catch {
+      setError("Failed to send. Check your connection and try again.");
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
-    <Button onClick={handleSend} disabled={loading}>
-      {loading ? "Sending..." : "Send invoice"}
-    </Button>
+    <div>
+      <Button onClick={handleSend} disabled={loading}>
+        {loading ? "Sending..." : "Send invoice"}
+      </Button>
+      {error && <p className="text-sm text-destructive mt-1">{error}</p>}
+    </div>
   );
 }

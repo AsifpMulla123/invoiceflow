@@ -27,22 +27,29 @@ export function ClientForm() {
     setLoading(true);
     setErrors({});
 
-    const res = await fetch("/api/clients", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form),
-    });
+    try {
+      const res = await fetch("/api/clients", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
 
-    const result = await res.json();
-    setLoading(false);
+      const result = await res.json();
 
-    if (!result.success) {
-      if (result.data) setErrors(result.data);
-      return;
+      if (!result.success) {
+        if (result.data) setErrors(result.data);
+        return;
+      }
+
+      router.push("/clients");
+      router.refresh();
+    } catch {
+      setErrors({
+        form: ["Something went wrong. Check your connection and try again."],
+      });
+    } finally {
+      setLoading(false);
     }
-
-    router.push("/clients");
-    router.refresh();
   }
 
   return (
@@ -99,6 +106,9 @@ export function ClientForm() {
           onChange={(e) => handleChange("phone", e.target.value)}
         />
       </div>
+      {errors.form && (
+        <p className="text-sm text-destructive">{errors.form[0]}</p>
+      )}
       <Button type="submit" disabled={loading}>
         {loading ? "Saving..." : "Add client"}
       </Button>
