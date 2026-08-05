@@ -1,7 +1,9 @@
+import Link from "next/link";
 import { headers } from "next/headers";
 import { notFound } from "next/navigation";
 import { auth } from "@/lib/auth/auth";
 import { prisma } from "@/lib/db/prisma";
+import { StatusBadge } from "@/components/invoices/status-badge";
 
 export default async function ClientDetailPage({
   params,
@@ -13,6 +15,7 @@ export default async function ClientDetailPage({
 
   const client = await prisma.client.findFirst({
     where: { id, userId: session!.user.id },
+    include: { invoices: { orderBy: { createdAt: "desc" } } },
   });
 
   if (!client) {
@@ -41,9 +44,34 @@ export default async function ClientDetailPage({
         </p>
       </div>
 
-      <p className="text-sm text-muted-foreground mt-8">
-        Invoice history will appear here once invoices exist (Day 4 onward).
-      </p>
+      <div className="mt-8">
+        <p className="text-sm font-medium text-muted-foreground mb-2">
+          Invoices
+        </p>
+        {client.invoices.length === 0 ? (
+          <div className="border rounded-xl p-4 text-sm text-muted-foreground">
+            No invoices yet for this client
+          </div>
+        ) : (
+          <div className="border rounded-xl overflow-hidden">
+            {client.invoices.map((invoice) => (
+              <Link
+                key={invoice.id}
+                href={`/invoices/${invoice.id}`}
+                className="flex items-center justify-between px-4 py-3 border-b last:border-b-0 hover:bg-muted/50"
+              >
+                <span className="text-sm">{invoice.invoiceNumber}</span>
+                <div className="flex items-center gap-3">
+                  <span className="text-sm tabular-nums">
+                    ₹{Number(invoice.total).toFixed(2)}
+                  </span>
+                  <StatusBadge status={invoice.status} />
+                </div>
+              </Link>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
