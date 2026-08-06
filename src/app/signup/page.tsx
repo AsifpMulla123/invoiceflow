@@ -2,11 +2,11 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { authClient } from "@/lib/auth/auth-client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function SignupPage() {
   const router = useRouter();
@@ -21,29 +21,36 @@ export default function SignupPage() {
     setError(null);
     setLoading(true);
 
-    const { error: signUpError } = await authClient.signUp.email({
-      name,
-      email,
-      password,
-    });
-
-    setLoading(false);
-
-    if (signUpError) {
-      setError(signUpError.message ?? "Signup failed. Please try again.");
-      return;
+    try {
+      const { error: signUpError } = await authClient.signUp.email({
+        name,
+        email,
+        password,
+      });
+      if (signUpError) {
+        setError(signUpError.message ?? "Signup failed. Please try again.");
+        return;
+      }
+      router.push("/dashboard");
+    } catch {
+      setError("Something went wrong. Check your connection and try again.");
+    } finally {
+      setLoading(false);
     }
-
-    router.push("/dashboard");
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center">
-      <Card className="w-full max-w-sm">
-        <CardHeader>
-          <CardTitle>Create your InvoiceFlow account</CardTitle>
-        </CardHeader>
-        <CardContent>
+    <div className="min-h-screen flex bg-background">
+      <div className="flex-1 flex items-center justify-center p-6">
+        <div className="w-full max-w-sm">
+          <Link href="/" className="font-bold text-lg text-primary">
+            InvoiceFlow
+          </Link>
+          <h1 className="text-2xl font-bold mt-8 mb-1">Create your account</h1>
+          <p className="text-muted-foreground text-sm mb-8">
+            Start invoicing free — no credit card needed
+          </p>
+
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="name">Name</Label>
@@ -76,11 +83,42 @@ export default function SignupPage() {
             </div>
             {error && <p className="text-sm text-destructive">{error}</p>}
             <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? "Creating account..." : "Sign up"}
+              {loading ? "Creating account..." : "Start invoicing free"}
             </Button>
           </form>
-        </CardContent>
-      </Card>
+
+          <p className="text-sm text-muted-foreground mt-6 text-center">
+            Already have an account?{" "}
+            <Link
+              href="/login"
+              className="text-primary font-medium hover:underline"
+            >
+              Log in
+            </Link>
+          </p>
+        </div>
+      </div>
+
+      <div className="hidden lg:flex flex-1 bg-primary/5 items-center justify-center p-12">
+        <div className="border rounded-2xl bg-card shadow-xl p-6 max-w-sm w-full">
+          <p className="text-xs text-muted-foreground mb-3">
+            Dashboard preview
+          </p>
+          <div className="grid grid-cols-2 gap-3 mb-4">
+            <div className="rounded-xl bg-muted/60 p-3">
+              <p className="text-xs text-muted-foreground mb-1">Earned</p>
+              <p className="text-lg font-bold tabular-nums">₹42,000</p>
+            </div>
+            <div className="rounded-xl bg-muted/60 p-3">
+              <p className="text-xs text-muted-foreground mb-1">Outstanding</p>
+              <p className="text-lg font-bold tabular-nums">₹18,000</p>
+            </div>
+          </div>
+          <p className="text-sm text-muted-foreground">
+            GST calculated automatically on every invoice you send.
+          </p>
+        </div>
+      </div>
     </div>
   );
 }

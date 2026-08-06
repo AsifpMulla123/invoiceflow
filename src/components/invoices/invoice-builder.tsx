@@ -90,7 +90,7 @@ export function InvoiceBuilder() {
   }
 
   return (
-    <div className="space-y-6 max-w-xl">
+    <div className="space-y-6 max-w-xl mx-auto">
       <div className="space-y-2">
         <Label htmlFor="client">Client</Label>
         <select

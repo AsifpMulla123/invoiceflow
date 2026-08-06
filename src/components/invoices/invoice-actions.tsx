@@ -73,11 +73,11 @@ export function InvoiceActions({
 
   return (
     <div>
-      <div className="flex gap-2">
+      <div className="flex flex-col sm:flex-row gap-2">
         {canMarkPaid && (
           <AlertDialog>
             <AlertDialogTrigger asChild>
-              <Button variant="outline" disabled={loading}>
+              <Button variant="outline" disabled={loading} className="w-full sm:w-auto">
                 Mark as paid
               </Button>
             </AlertDialogTrigger>

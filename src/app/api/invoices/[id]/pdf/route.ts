@@ -42,6 +42,7 @@ export async function GET(
   const pdfBuffer = await renderToBuffer(
     InvoicePdf({
       invoiceNumber: invoice.invoiceNumber,
+      logoUrl: user?.logoUrl || null,
       businessName: user?.businessName ?? user?.name ?? "InvoiceFlow User",
       businessGstin: user?.gstin ?? null,
       clientName: invoice.client.name,

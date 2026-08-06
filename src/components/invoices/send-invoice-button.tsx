@@ -25,7 +25,11 @@ export function SendInvoiceButton({ invoiceId }: { invoiceId: string }) {
 
   return (
     <div>
-      <Button onClick={handleSend} disabled={loading}>
+      <Button
+        onClick={handleSend}
+        disabled={loading}
+        className="w-full sm:w-auto"
+      >
         {loading ? "Sending..." : "Send invoice"}
       </Button>
       {error && <p className="text-sm text-destructive mt-1">{error}</p>}

@@ -1,9 +1,17 @@
-import { Document, Page, Text, View, StyleSheet } from "@react-pdf/renderer";
+import {
+  Document,
+  Page,
+  Text,
+  View,
+  StyleSheet,
+  Image,
+} from "@react-pdf/renderer";
 
 const styles = StyleSheet.create({
   page: { padding: 40, fontSize: 11, fontFamily: "Helvetica" },
   header: { marginBottom: 20 },
   businessName: { fontSize: 16, fontWeight: 700 },
+  logo: { width: 100, height: 40, marginBottom: 8, objectFit: "contain" },
   section: { marginBottom: 16 },
   row: {
     flexDirection: "row",
@@ -35,6 +43,7 @@ const styles = StyleSheet.create({
 
 interface InvoicePdfProps {
   invoiceNumber: string;
+  logoUrl: string | null;
   businessName: string;
   businessGstin: string | null;
   clientName: string;
@@ -57,6 +66,7 @@ interface InvoicePdfProps {
 
 export function InvoicePdf({
   invoiceNumber,
+  logoUrl,
   businessName,
   businessGstin,
   clientName,
@@ -75,6 +85,7 @@ export function InvoicePdf({
     <Document>
       <Page size="A4" style={styles.page}>
         <View style={styles.header}>
+          {logoUrl && <Image src={logoUrl} style={styles.logo} />}
           <Text style={styles.businessName}>{businessName}</Text>
           {businessGstin && <Text>GSTIN: {businessGstin}</Text>}
         </View>

@@ -70,19 +70,19 @@ export default async function DashboardPage() {
       ) : (
         <>
           <div className="grid grid-cols-3 gap-4 mb-8">
-            <div className="border rounded-xl p-4">
+            <div className="border rounded-xl p-5 hover:shadow-sm transition-shadow bg-card">
               <p className="text-sm text-muted-foreground mb-1">Total earned</p>
               <p className="text-2xl font-semibold tabular-nums">
                 ₹{Number(totalEarnedAllTime._sum.total ?? 0).toFixed(2)}
               </p>
             </div>
-            <div className="border rounded-xl p-4">
+            <div className="border rounded-xl p-5 hover:shadow-sm transition-shadow bg-card">
               <p className="text-sm text-muted-foreground mb-1">Outstanding</p>
               <p className="text-2xl font-semibold tabular-nums">
                 ₹{pending.toFixed(2)}
               </p>
             </div>
-            <div className="border rounded-xl p-4">
+            <div className="border rounded-xl p-5 hover:shadow-sm transition-shadow bg-card">
               <p className="text-sm text-muted-foreground mb-1">
                 Paid this month
               </p>
@@ -95,7 +95,7 @@ export default async function DashboardPage() {
           <p className="text-sm font-medium text-muted-foreground mb-2">
             Recent invoices
           </p>
-          <div className="border rounded-xl overflow-hidden">
+          <div className="border rounded-xl overflow-hidden bg-card hover:shadow-sm transition-shadow">
             {recentInvoices.map((invoice) => (
               <Link
                 key={invoice.id}

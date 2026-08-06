@@ -53,7 +53,7 @@ export default async function ClientDetailPage({
             No invoices yet for this client
           </div>
         ) : (
-          <div className="border rounded-xl overflow-hidden">
+          <div className="border rounded-xl overflow-hidden bg-card hover:shadow-sm transition-shadow">
             {client.invoices.map((invoice) => (
               <Link
                 key={invoice.id}
